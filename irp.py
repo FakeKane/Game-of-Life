@@ -15,7 +15,7 @@ pygame.init()
 size = width, height = 500, 500
 black = 0, 0, 0
 white = 255, 255, 255
-
+red = 255, 0, 0
 # counts number of neighbors to a cell
 
 
@@ -44,6 +44,20 @@ def update_automata(v):  # assume v is a square array.
         for j in range(length):
             buffer = find_neighbors(v, i, j)
             if v[i][j] == 1:
+                if buffer < 2 or buffer > 3:
+                    v_final[i][j] = 0
+                else:
+                    v_final[i][j] = 1
+            elif v[i][j] == 0:
+                if buffer == 3:
+                    v_final[i][j] = 1
+                else:
+                    v_final[i][j] = 0
+    return v_final
+# This is for eating food
+"""
+
+            if v[i][j] == 1:
                 if buffer < 2:
                     v_final[i][j] = 0
                 elif buffer > 3:
@@ -55,7 +69,14 @@ def update_automata(v):  # assume v is a square array.
                     v_final[i][j] = 1
                 else:
                     v_final[i][j] = 0
-    return v_final
+            elif v[i][j] == 2:
+                if buffer == 3:
+                    v_final[i][j] = 0
+                elif buffer == 2:
+                    v_final[i][j] = 1
+                else:
+                    v_final[i][j] = 2
+"""
 
 # update_display() recalculates grid values
 
@@ -71,6 +92,11 @@ def update_display(length, values_grid, screen, box_size):
             elif values_grid[i][j] == 0:
                 pygame.draw.rect(
                     screen, white, pygame.Rect(
+                        box_size*i, box_size*j, box_size,
+                        box_size))
+            elif values_grid[i][j] == 2:
+                pygame.draw.rect(
+                    screen, red, pygame.Rect(
                         box_size*i, box_size*j, box_size,
                         box_size))
     pygame.display.flip()
@@ -110,6 +136,70 @@ def diamond_growth(length):
     return grid
 
 
+def big_diamond_growth(length):
+    grid = [
+        [0 for i in range(length)] for j in range(length)
+    ]
+    grid[length / 2][length / 2] = 1
+    grid[length / 2][length / 2 - 1] = 1
+    grid[length / 2][length / 2 + 1] = 1
+    grid[length / 2][length / 2 + 2] = 1
+    grid[length / 2][length / 2 - 2] = 1
+    grid[length / 2 + 1][length / 2] = 1
+    grid[length / 2 + 1][length / 2 - 1] = 1
+    grid[length / 2 + 1][length / 2 + 1] = 1
+    grid[length / 2 - 1][length / 2] = 1
+    grid[length / 2 - 1][length / 2 - 1] = 1
+    grid[length / 2 - 1][length / 2 + 1] = 1
+    grid[length / 2 + 2][length / 2] = 1
+    grid[length / 2 - 2][length / 2] = 1
+    return grid
+
+
+def dual_pulsar(length):
+    grid = [
+        [0 for i in range(length)] for j in range(length)
+    ]
+    i = 0
+    while i <= 4:
+        grid[length / 2][length / 2 + i] = 1
+        grid[length / 2][length / 2 - 1 + i] = 1
+        grid[length / 2][length / 2 - 2 + i] = 1
+        grid[length / 2][length / 2 + 4 + i] = 1
+        grid[length / 2][length / 2 + 5 + i] = 1
+        grid[length / 2][length / 2 + 6 + i] = 1
+        grid[length / 2 - 5][length / 2 + i] = 1
+        grid[length / 2 - 5][length / 2 - 1 + i] = 1
+        grid[length / 2 - 5][length / 2 - 2 + i] = 1
+        grid[length / 2 - 5][length / 2 + 4 + i] = 1
+        grid[length / 2 - 5][length / 2 + 5 + i] = 1
+        grid[length / 2 - 5][length / 2 + 6 + i] = 1
+        grid[length / 2 + 2][length / 2 + i] = 1
+        grid[length / 2 + 2][length / 2 - 1 + i] = 1
+        grid[length / 2 + 2][length / 2 - 2 + i] = 1
+        grid[length / 2 + 2][length / 2 + 4 + i] = 1
+        grid[length / 2 + 2][length / 2 + 5 + i] = 1
+        grid[length / 2 + 2][length / 2 + 6 + i] = 1
+        grid[length / 2 + 7][length / 2 + i] = 1
+        grid[length / 2 + 7][length / 2 - 1 + i] = 1
+        grid[length / 2 + 7][length / 2 - 2 + i] = 1
+        grid[length / 2 + 7][length / 2 + 4 + i] = 1
+        grid[length / 2 + 7][length / 2 + 5 + i] = 1
+        grid[length / 2 + 7][length / 2 + 6 + i] = 1
+        i += 4
+    return grid
+"""
+    grid[length / 2 + 1][length / 2] = 1
+    grid[length / 2 + 1][length / 2 - 1] = 1
+    grid[length / 2 + 1][length / 2 + 1] = 1
+    grid[length / 2 - 1][length / 2] = 1
+    grid[length / 2 - 1][length / 2 - 1] = 1
+    grid[length / 2 - 1][length / 2 + 1] = 1
+    grid[length / 2 + 2][length / 2] = 1
+    grid[length / 2 - 2][length / 2] = 1
+"""
+
+
 def conway():
     box_size = raw_input(
         "Please enter the size at which you wish the boxes to display: ")
@@ -133,8 +223,9 @@ def conway():
     """
     # values_grid = oscillator(length)
     # values_grid = glider(length)
-    values_grid = diamond_growth(length)
-    
+    # values_grid = diamond_growth(length)
+    # values_grid = big_diamond_growth(length)
+    values_grid = dual_pulsar(length)
     while True:
         update_display(length, values_grid, screen, box_size)
         for event in pygame.event.get():
@@ -144,6 +235,5 @@ def conway():
         # this function is shown above.
         values_grid = update_automata(values_grid)
         time.sleep(0.5)
-        i += 1
 
 conway()
